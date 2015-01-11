@@ -1,0 +1,7 @@
+.#*
+auto-save-list
+.emacs.d/image-dired
+xhtml-loader.rnc
+conf/.mutt/cache/
+conf/.mutt/certificates
+conf/.mutt/headers

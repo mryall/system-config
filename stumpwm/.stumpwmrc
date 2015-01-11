@@ -1,0 +1,300 @@
+;; -*-lisp-*-
+;;
+;; Matthew's .stumpwmrc
+(in-package :stumpwm)
+
+(setf *image-dir* "Dropbox/Photos/desktop/")
+
+;; host environment
+(defun mjr/host-is (hostname)
+  (ppcre:scan hostname (machine-instance)))
+
+;; the vitally important desktop background
+(defun mjr/random-file (dir)
+  "Return a random file path string in a given directory"
+  (let ((path-list
+         (directory
+          (make-pathname :name :wild
+                         :type :wild
+                         :defaults (concat "/home/mryall/" dir)))))
+    (namestring (nth (random (length path-list)) path-list))))
+
+(defcommand bg-dark () ()
+  "Dark desktop background"
+  (run-shell-command
+   (concatenate 'string
+                "xsetbg "
+                "-at 675,425 "
+                "-zoom 100 "
+                ;;"-fullscreen "
+                "-border black "
+                "-fork "
+                (mjr/random-file *image-dir*))))
+
+;; desktop image (rotate each hour)
+;;(ql:quickload "trivial-timers")
+
+;;(defun mjr/rotate-desktop ()
+;;  "Cycle the desktop background"
+;;  (let ((timer (trivial-timers:make-timer
+;;                'bg-dark :name "desktop-image")))
+;;    (trivial-timers:schedule-timer timer 1 :repeat-interval 3600)))
+
+;;(mjr/rotate-desktop)
+
+;; Set up groups
+(defvar *gmap* (make-sparse-keymap))
+
+(defun mjr/add-group (name key)
+  "Add a group and configure it's accessor"
+  (progn
+    (gnewbg name)
+    (mjr/map-group-key name key)))
+
+(defun mjr/map-group-key (name key)
+  (define-key *gmap* (kbd key) (concat "switch-group " name)))
+
+(defun mjr/rename-default-group (name key)
+  (progn
+    (setf (group-name
+           (find-group (current-screen) "Default")) name)
+    (mjr/map-group-key name key)))
+
+(mjr/rename-default-group "plan" "o")
+
+(if (mjr/host-is "mcstay")
+    (progn
+      (mjr/add-group "web"   "f")
+      (mjr/add-group "code"  "u")
+      (mjr/add-group "perl"  "c")
+      (mjr/add-group "java"  "v")
+      (mjr/add-group "mail"  "m")
+      (mjr/add-group "diag"  "d")
+      (mjr/add-group "irc"   "i")
+      (mjr/add-group "term"  "y")
+      (mjr/add-group "music" "z")
+      (mjr/add-group "doc"   "p")))
+
+(if (mjr/host-is "maradona")
+    (progn
+      (mjr/add-group "web"  "f")
+      (mjr/add-group "code" "u")
+      (mjr/add-group "term" "y")))
+
+;; install group keymap
+(define-key *root-map* (kbd "f") '*gmap*)
+(define-key *root-map* (kbd "C-f") '*gmap*)
+
+;; system setup
+(run-shell-command "xrdb merge ~/.Xdefaults")
+(run-shell-command "xmodmap ~/.xmodmap")
+(run-shell-command (concatenate 'string "xsetroot -solid " "black"))
+;; (run-shell-command "emacs-daemon" t)
+(run-shell-command "killall xscreensaver 2>/dev/null; xscreensaver &")
+(setf *background* "black")
+(setf *window-border-style* :none )
+
+;; status window
+(set-bg-color     "Midnight Blue")
+(set-fg-color     "White")
+(set-border-color "Dark Cyan")
+(set-font "-xos4-terminus-medium-r-*-*-14-*-*-*-*-*-iso8859-1")
+;;(set-font "-*-liberation sans-medium-r-normal-*-17-*-*-*-*-*-*-1")
+;;(set-font "-*-dejavu sans mono-medium-r-normal-*-12-*-*-*-m-0-iso10646-1")
+(setf *message-window-padding* 10)
+(setf *message-window-gravity* :center)
+(setf *input-window-gravity* :center)
+
+;; open new windows in focused frame
+(setf *new-window-prefered-frame* (list :focused :unfocused) )
+(setf *window-name-source* :resource-name )
+
+;; mode line configuration
+(load-module "disk")
+(load-module "mpd")
+(load-module "notifications")
+(setf *mode-line-position* :top)
+(setf *mode-line-border-width* 1)
+(setf *mode-line-pad-x* 10)
+(setf *mode-line-pad-y* 6)
+(setf *mode-line-background-color* "Midnight Blue")
+(setf *mode-line-foreground-color* "Light Blue")
+(setf *mode-line-border-color* "Dark Cyan")
+(setf *disk-usage-paths* '("/home"))
+(setf *screen-mode-line-format*
+      (list "[ %d ]  [ %n ] [ %m ] [ "
+            '(:eval (check-mail-status))
+            " ] %N "))
+
+;; battery status
+;;(load-module "battery-portable")
+;;(setf *screen-mode-line-format* "%g | %B | %m")
+
+;; mpd configuration
+(setq *mpd-server* '(192 168 1 66))
+
+;; find groups
+(defun find-group-by-name (name)
+  (find name (screen-groups (current-screen))
+        :test #'string-equal :key #'group-name))
+
+(defcommand switch-group (name) ((:string "Group: "))
+  "Switch to the named group"
+  (gselect (find-group-by-name name)))
+
+(defcommand fetch-my-mail () ()
+  "Run fetchmail"
+  (message (run-shell-command "fetchmail" t)))
+(define-key *root-map* (kbd "C-b") "fetch-my-mail")
+
+;; conkeror
+(defcommand conkeror () ()
+  "Start/Switch to Conkeror."
+  (run-or-raise "conkeror" '(:class "Conkeror")))
+;; (define-key *root-map* (kbd "C-f") "conkeror")
+ 
+(defcommand chrome () ()
+  "Start/Switch to Chrome"
+  (run-or-raise "google-chrome" '(:class "Conkeror")))
+;; (define-key *root-map* (kbd "C-f") "conkeror")
+ 
+;; raise emacs group as emacsclient
+(defcommand emacs () ()
+  "Start/Switch to Emacsclient."
+  (run-shell-command "emacsclient -c"))
+(define-key *root-map* (kbd "e") "emacs")
+
+(defcommand xterm-small () ()
+  "Start/Switch to XTerm w/ small font"
+  (run-shell-command
+   "xterm -fg white -bg black -font '-xos4-terminus-medium-r-*-*-14-*-*-*-*-*-iso8859-1'"))
+(define-key *root-map* (kbd "C-c") "xterm-small")
+
+(defcommand xterm-large () ()
+  "Start/Switch to XTerm w/ larger font"
+  (run-shell-command
+   "xterm -fg white -bg black -font '-xos4-terminus-medium-r-*-*-22-*-*-*-*-*-iso8859-1'"))
+
+;; Load swank.
+;; (load "/home/mryall/quicklisp/dists/quicklisp/software/slime-20120107-cvs/swank-loader.lisp")
+;; (swank-loader:init)
+
+;; (defcommand start-swank () ()
+;;             (setf stumpwm:*top-level-error-action* :break)
+;;             (swank:create-server :port 4005
+;;                                  :style swank:*communication-style*
+;;                                  :dont-close t)
+;;             (echo-string (current-screen) "Starting Swank"))
+;; (define-key *root-map* (kbd "C-s") "start-swank")       
+
+;; copy/paste
+(defcommand paste-x-selection () (:rest)
+  "Universal rat-less X paste."
+  (let ((cmd (concatenate 'string "insert " (get-x-selection))))
+    (eval-command cmd)))
+(define-key *root-map* (kbd "p") "paste-x-selection")
+
+;; moving frame focus
+(define-key *root-map* (kbd "C-Left")  "move-focus left")
+(define-key *root-map* (kbd "C-Right") "move-focus right")
+(define-key *root-map* (kbd "C-Down")  "move-focus down")
+(define-key *root-map* (kbd "C-Up")    "move-focus up")
+
+;; start lastfm
+(defcommand start-lastfm () ()
+  "Start LastFM Player"
+  (run-shell-command "lastfm"))
+(define-key *root-map* (kbd "C-v") "start-lastfm")
+
+;; start emacs-daemon
+(defun emacs-daemon-running-p ()
+   "Test whether Emacs is running as a daemon"
+   (let ((proc (run-shell-command "pgrep -f '[e]macs --daemon'")))
+     (progn
+       (loop do (null 1) while (eq :running (sb-ext:process-status proc)))
+       (if (eq 0 (sb-ext:process-exit-code proc))
+           T
+           ()))))
+
+(defcommand start-emacs-daemon () ()
+   "Start Emacs Daemon"
+   (if (not (emacs-daemon-running-p))
+       (message (run-shell-command "emacs-snapshot --daemon 2>&1" t))
+       (message "Emacs already running as a daemon")))
+(define-key *root-map* (kbd "C-q") "start-emacs-daemon")
+
+(defcommand vnc (server) ((:string "Server: "))
+  "Connect via vnc"
+  (run-shell-command (concat "vncviewer " server)))
+(define-key *root-map* (kbd "z") "vnc")
+
+(defcommand pdf-view (file) ((:string "File: "))
+  "View PDF in evince"
+  "View PDF in evince"
+  (run-shell-command (concat "evince " file)))
+(define-key *root-map* (kbd "d") "pdf-view")
+
+(defcommand inkscape () ()
+  "Open Inkscape"
+  (run-shell-command (concat "inkscape")))
+
+(defcommand battery () ()
+  "Show battery status"
+  (message "~a" (run-shell-command "acpi" t)))
+(define-key *root-map* (kbd "b") "battery")
+
+(defcommand emacs-standalone () ()
+  "Run a standalone emacs instance"
+  (run-shell-command "emacs -q -l ~/.emacs-dev"))
+
+(setf *mjr-notify-map*
+      (let ((m (make-sparse-keymap)))
+        (define-key m (kbd "r") "notifications-delete-last")
+        m))
+
+(define-key *root-map* (kbd "C-m") '*mpd-map*)
+(define-key *root-map* (kbd "C-n") '*mjr-notify-map*)
+(define-key *root-map* (kbd "C-l") "exec xscreensaver-command -lock")
+
+(defcommand tunnels (ip) ((:string "IP: "))
+  "open my tunnels"
+  (run-shell-command (concat "~/conf/tunnels.sh " ip))
+  ;;(run-with-timer 2 nil (message "Connecting..."))
+  (message (run-shell-command "ps ax | grep -c '[2]000:localhost'" t)))
+
+(defun check-mail-status ()
+  (subseq (run-shell-command
+           "imapfilter -c  .sysconf/conf-work/.imapfilter/imapfilter_status_local" t)
+          0 32))
+
+(defcommand mail-status () ()
+  (check-mail-status))
+  
+(defcommand dismiss-all-messages () ()
+  (unmap-all-message-windows))
+(define-key *root-map* (kbd "]") "dismiss-all-messages")
+
+;; clear notifications from the mode line
+(defun notify-timer ()
+  (car
+   (member-if #'(lambda (x) (equalp 'notifications-delete-first
+                               (timer-function x)))
+              *timer-list*)))
+
+(defun cancel-notify-timer ()
+  (if (notify-timer)
+      (cancel-timer (notify-timer))))
+
+(defun set-notify-timer ()
+  (if (notify-timer)
+      nil
+      (run-with-timer 0 60 'notifications-delete-first)))
+
+(set-notify-timer)
+
+;;(defun save-message ()
+;;  (with-open-file (s #p "/tmp/stumpwm-message" :direction :output)
+;;    (write-string (get-x-selection) s)))
+
+(mode-line)
+(message "End")
