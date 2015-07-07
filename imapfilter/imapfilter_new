@@ -1,0 +1,181 @@
+---------------
+--  Options  --
+---------------
+
+-- options.timeout = 120
+-- options.subscribe = true
+
+account1 = IMAP {
+   server = '',
+   username = '',
+   password = '',
+   port = ,
+   ssl = ''
+}
+
+function sort_mail()
+
+   -- dates
+   local month_two_wks_ago = os.date("%b-%Y", (os.time() - 1209600))
+   local date_two_wks_ago  = os.date("%d-%b-%Y", (os.time() - 1209600))
+
+   filter_code()
+   filter_jira()
+   filter_sysmsg()
+   filter_spam()
+   filter_servicedesk()
+   archive_mail(date_two_wks_ago)
+
+end
+
+function archive_mail(archive_date)
+
+   result = account1.INBOX:arrived_before(archive_date)
+
+   for _, msg in ipairs(result) do
+
+      move = {}
+      mbox, uid = unpack(msg)
+      date = mbox[uid]:fetch_date(msg)
+      month, year = string.match(date, "^%d+-(%a+)-(%d+)")
+
+      print(date, month, year)
+      destination = "Archive/" .. year .. "/" .. month
+
+      if source ~= destination then
+         table.insert(move, msg)
+         account1.INBOX:move_messages(account1[destination], move)
+      end
+   end
+end
+
+function kill_mail(kill_date)
+
+   -- Kill older JIRA mails
+   -- result = account1['JiraMsg']:arrived_before(kill_date)
+   -- account1['JiraMsg']:delete_messages(result)
+
+   -- Kill older code mails
+   -- result = account1['INBOX/code']:arrived_before(kill_date)
+   -- account1['CommitMsg']:delete_messages(result)
+
+   -- Kill system message mails
+   -- result = account1['INBOX/sysmsg']:arrived_before(date_two_wks_ago)
+   -- account1['INBOX/sysmsg']:delete_messages(result)
+
+   -- Kill job queue message mails
+   -- result = account1['SysMsg/jqmsg']:arrived_before(date_two_wks_ago)
+   -- account1['SysMsg/jqmsg']:delete_messages(result)
+
+   -- Kill spam
+   --result = account1['INBOX/spam']:arrived_before(date_two_wks_ago)
+   --account1['INBOX/spam']:delete_messages(result)
+
+end
+
+
+function filter_servicedesk()
+
+   -- Move servicedesk emails to server message folder
+   result = account1.INBOX:match_from('[Ss]ervice[Dd]esk@net-a-[Pp]orter.com')
+   account1.INBOX:move_messages(account1['ServiceDesk'], result)
+
+end
+
+function filter_sysmsg()
+
+   -- Move xtracker info emails to server message folder
+   result = account1.INBOX:contain_from('Kingpin Build Server')
+   account1.INBOX:move_messages(account1['SysMsg/build'], result)
+
+   -- Move root emails to server message folder
+   result = account1.INBOX:contain_from('root')
+   account1.INBOX:move_messages(account1['SysMsg/server'], result)
+
+   -- Move XTDC emails to server message folder
+   result = account1.INBOX:match_from('xtracker@net-a-porter.com')
+   account1.INBOX:move_messages(account1['SysMsg/xtracker'], result)
+
+   -- Move job queue emails to JQ message folder
+   result = account1.INBOX:contain_subject('XTDC job failed on host')
+   account1.INBOX:move_messages(account1['SysMsg/jqmsg'], result)
+
+   result = account1.INBOX:contain_from('psp.live')
+   account1.INBOX:move_messages(account1['SysMsg/psp'], result)
+
+   result = account1.INBOX:contain_from('backend@net-a-porter.com')
+   account1.INBOX:move_messages(account1['SysMsg/backend-systems'], result)
+
+   result = account1.INBOX:contain_from('no-reply@(d|D)atacash.co.za')
+   account1.INBOX:move_messages(account1['SysMsg/datacash'], result)
+
+   result = account1.INBOX:contain_from('xt-upload')
+   account1.INBOX:move_messages(account1['SysMsg/upload'], result)
+
+   result = account1.INBOX:contain_from('order_import@net-a-porter.com')
+   account1.INBOX:move_messages(account1['SysMsg/orders'], result)
+
+   result = account1.INBOX:contain_from('application_support@net-a-porter.com')
+   account1.INBOX:move_messages(account1['SysMsg/xtracker'], result)
+
+   result = account1.INBOX:contain_from('psp-live@')
+   account1.INBOX:move_messages(account1['SysMsg/paymentservice'], result)
+
+   result = account1.INBOX:contain_from('live-psp@')
+   account1.INBOX:move_messages(account1['SysMsg/paymentservice'], result)
+
+   result = account1.INBOX:contain_from('PaymentService_Support@net-a-porter.com')
+   account1.INBOX:move_messages(account1['SysMsg/paymentservice'], result)
+
+   result = account1.INBOX:contain_subject('[Confluence]')
+   account1.INBOX:move_messages(account1['SysMsg/wiki'], result)
+
+   result = account1.INBOX:contain_from('Cron Daemon')
+   account1.INBOX:delete_messages(result)
+end
+
+function filter_jira()
+
+   -- Move JIRA mails to JIRA folder
+   result = account1.INBOX:contain_subject('[JIRA]')
+   account1.INBOX:move_messages(account1['JiraMsg'], result)
+
+end
+
+function filter_code()
+
+   -- Move SVN messages to the code folder
+   result = account1.INBOX:contain_from('svn@napversion.net-a-porter.com')
+   account1.INBOX:move_messages(account1['CommitMsg'], result)
+
+   -- Move git messages to the code folder
+   result = account1.INBOX:contain_from('git@gitosis.net-a-porter.com')
+   account1.INBOX:move_messages(account1['CommitMsg'], result)
+
+   -- Move build messages to the code folder
+   result = account1.INBOX:contain_from('Jenkins Back End')
+   account1.INBOX:move_messages(account1['SysMsg/buildstat'], result)
+
+   -- Move build messages to the code folder
+   result = account1.INBOX:contain_from('jenkins-pci@net-a-porter.com')
+   account1.INBOX:move_messages(account1['SysMsg/buildstat'], result)
+
+end
+
+function filter_spam()
+
+   -- Move outnet messages to the spam folder
+   result = account1.INBOX:match_from('@email.theoutnet.com')
+   account1.INBOX:move_messages(account1['Junk E-mail'], result)
+
+   -- Move NAP messages to the spam folder
+   result = account1.INBOX:match_from('@email.net-a-porter.com')
+   account1.INBOX:move_messages(account1['Junk E-mail'], result)
+
+   -- Move MrP messages to the spam folder
+   result = account1.INBOX:match_from('@email.mrporter.com')
+   account1.INBOX:move_messages(account1['Junk E-mail'], result)
+
+end
+
+sort_mail()
