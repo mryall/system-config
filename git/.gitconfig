@@ -2,7 +2,7 @@
 	name   = Matthew Ryall
 	email  = matthew@mexico86.co.uk
 [core]
-	editor = emacsclient -t
+	editor = /Applications/Emacs.app/Contents/MacOS/bin/emacsclient
         whitespace = nowarn
 [color]
   branch = auto
@@ -27,3 +27,6 @@
   co = checkout
   br = branch
   ix = diff --cached
+  lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+[push]
+	default = simple
