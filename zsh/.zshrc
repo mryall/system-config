@@ -1,5 +1,5 @@
 ########################################
-#                .zshrc 
+#                .zshrc
 #            mryall 20080321
 ########################################
 
@@ -19,13 +19,13 @@ PR_NO_COLOUR="%{$terminfo[sgr0]%}"
 PS1="[$PR_LIGHT_CYAN%n@%m$PR_NO_COLOUR:$PR_CYAN%2c$PR_NO_COLOUR]> "
 
 # prompt for right side of screen
-RPS1="[$PR_CYAN%/$PR_NO_COLOUR]"
+RPS1="[$PR_CYAN%4/$PR_NO_COLOUR]"
 
-#### key setups 
+#### key setups
 # emacs key bindings
 bindkey -e
 # also do history expansion on space
-bindkey ' ' magic-space 
+bindkey ' ' magic-space
 
 # completion
 autoload -U compinit
@@ -89,7 +89,7 @@ export LS_COLORS="di=00;32:ln=00;35:so=00;32:pi=00;33:ex=00;31:bd=34;46:cd=34;43
 #export TERM=screen
 
 # fix C-s for emacs
-## This no longer works so it's commmented for the moment 
+## This no longer works so it's commmented for the moment
 #stty stop ^-
 
 # emacs
@@ -114,7 +114,7 @@ alias smxt="xterm -font '-xos4-terminus-medium-r-*-*-14-*-*-*-*-*-iso10646-1'"
 #if [ ${TERM_PROGRAM} = "Apple_Terminal" ]
 if [ `uname` = "Darwin" ]
 then
-    # coloured ls 
+    # coloured ls
     alias ls='ls -G'
 
     # MacPorts
@@ -138,3 +138,7 @@ tagjava () {
 if [[ -a  ~/perl5/perlbrew/etc/bashrc ]]; then
     source ~/perl5/perlbrew/etc/bashrc
 fi
+
+export NVM_DIR="$HOME/.nvm"
+. "/usr/local/opt/nvm/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
