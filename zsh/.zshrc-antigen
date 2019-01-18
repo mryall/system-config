@@ -7,10 +7,10 @@ antigen use oh-my-zsh
 antigen bundle git
 antigen bundle gitfast
 antigen bundle nvm
-antigen bundle cas
 antigen bundle colorize
 antigen bundle docker
 antigen bundle command-not-found
+antigen bundle aws
 
 # Syntax highlighting bundle.
 antigen bundle zsh-users/zsh-syntax-highlighting
