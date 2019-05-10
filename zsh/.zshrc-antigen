@@ -9,7 +9,7 @@ antigen bundle gitfast
 antigen bundle nvm
 antigen bundle colorize
 antigen bundle docker
-antigen bundle command-not-found
+# antigen bundle command-not-found
 antigen bundle aws
 
 # Syntax highlighting bundle.
@@ -26,3 +26,8 @@ antigen apply
 # NVM
 export NVM_DIR="$HOME/.nvm"
 [ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
+
+export GOPATH=$HOME/Playground/golang
+export GOROOT=/usr/local/opt/go/libexec
+export PATH=$PATH:$GOPATH/bin
+export PATH=$PATH:$GOROOT/bin
