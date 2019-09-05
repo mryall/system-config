@@ -18,7 +18,7 @@ SubFolders Verbatim
 Channel GMail
 Master :GMail-remote:
 Slave :GMail-local:
-Patterns *
+Patterns * ![Gmail]*
 Create Slave
 Sync All
 Expunge Both
