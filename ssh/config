@@ -1,0 +1,4 @@
+host github.com
+ HostName github.com
+ IdentityFile /Volumes/Q/k/id_rsa
+ User git
