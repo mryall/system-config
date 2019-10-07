@@ -1,0 +1,4 @@
+partial alphanumeric_keys
+xkb_symbols "lalt_bksp" {
+    key <LALT> { [ BackSpace ] };
+};
