@@ -169,11 +169,8 @@ bar {
         status_command i3status
 }
 
-# Remap keys so we can type and control emacs
-exec --no-startup-id setxkbmap -option "ctrl:nocaps,lalt:lalt_bksp"
-
-# Add print key as the i3 modifier
-exec --no-startup-id xmodmap -e 'add Mod3 = Print'
+# Remap keys
+exec --no-startup-id ~/Config/system-config/keyboard/setup.sh
 
 # Backlight control keys
 bindsym XF86MonBrightnessUp exec --no-startup-id xbacklight -inc 5
