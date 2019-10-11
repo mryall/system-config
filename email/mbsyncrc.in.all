@@ -1,0 +1,51 @@
+IMAPAccount MXCO86
+Host imap.gmail.com
+User matthew@mexico86.co.uk
+PassCmd "keepassxc.cli show --no-password -k  __KEYFILE__ __DBFILE__ GSuite | grep Password: | cut -d' ' -f2"
+Port 993
+SSLType IMAPS
+AuthMechs Login
+CertificateFile __CERTFILE__
+
+IMAPStore MXCO86-remote
+Account MXCO86
+
+MaildirStore MXCO86-local
+Path ~/Maildir/MXCO86/
+Inbox ~/Maildir/MXCO86/INBOX
+SubFolders Verbatim
+
+Channel MXCO86
+Master :MXCO86-remote:
+Slave :MXCO86-local:
+Patterns * ![Gmail]*
+Create Slave
+Sync All
+Expunge Both
+SyncState *
+
+IMAPAccount LVMHDA
+Host imap.gmail.com
+User m.ryall@lvmhda.com
+PassCmd "keepassxc.cli show --no-password -k __KEYFILE__ __DBFILE__ 'GSuite - LVMHDA' | grep Password: | cut -d' ' -f2"
+Port 993
+SSLType IMAPS
+AuthMechs Login
+CertificateFile __CERTFILE__
+
+IMAPStore LVMHDA-remote
+Account LVMHDA
+
+MaildirStore LVMHDA-local
+Path ~/Maildir/LVMHDA/
+Inbox ~/Maildir/LVMHDA/INBOX
+SubFolders Verbatim
+
+Channel LVMHDA
+Master :LVMHDA-remote:
+Slave :LVMHDA-local:
+Patterns * ![Gmail]*
+Create Slave
+Sync All
+Expunge Both
+SyncState *
