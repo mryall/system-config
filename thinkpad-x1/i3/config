@@ -170,7 +170,7 @@ bar {
 }
 
 # Remap keys
-exec --no-startup-id ~/Config/system-config/keyboard/setup.sh
+exec --no-startup-id ~/Config/system-config/thinkpad-x1/keyboard/setup.sh
 
 # Backlight control keys
 bindsym XF86MonBrightnessUp exec --no-startup-id xbacklight -inc 5
