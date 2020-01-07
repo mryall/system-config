@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# Configure three workstation displays side-by-side
+xrandr --output DisplayPort-0 --left-of DisplayPort-1 --rotate right --output DisplayPort-1 --rotate left --output DVI-D-0 --rotate left
