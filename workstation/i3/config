@@ -182,6 +182,7 @@ exec --no-startup-id ~/Config/system-config/workstation/keyboard/setup.sh
 
 # Assign Workspaces
 assign [class="Terminal"] $ws1
+assign [class="URxvt"] $ws1
 assign [class="Emacs"] $ws2
 assign [class="Firefox"] $ws3
 assign [class="Slack"] $ws4
